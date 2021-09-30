@@ -1,4 +1,5 @@
 import socket
+import random
 
 ClientSocket = socket.socket()
 host = '127.0.0.1'
@@ -10,8 +11,12 @@ try:
     ClientSocket.connect((host, port))
 except socket.error as e:
     print(str(e))
-
-Response = ClientSocket.recv(1024)
+    
+clientID = random.randint(10000,90000)
+clientID = str(clientID)
+print("Client ID -> " , clientID )
+ClientSocket.send(str.encode(clientID))
+#Response = ClientSocket.recv(1024)
 while True:
     Input = input('Say Something: ')
     ClientSocket.send(str.encode(hostname + " -> " + Input ))
