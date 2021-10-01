@@ -5,16 +5,20 @@ import json
 import datetime
 import time
 
+from flask import Flask, redirect, url_for, request
+app = Flask(__name__)
+
+
 ServerSocket = socket.socket()
-host = '0.0.0.0'
-port = 2021
+HOST = '0.0.0.0'
+PORT = 2021
 ThreadCount = 0
 abort = False
 
 Connected_Clients = {}
 
 try:
-    ServerSocket.bind((host, port))
+    ServerSocket.bind((HOST, PORT))
 except socket.error as e:
     print(str(e))
 
@@ -43,6 +47,7 @@ def threaded_client(connection , IPaddr,  port):
         
         Connected_Clients[ClientID] = {"connection_object" : connection , "IP" : IPaddr , "Port" : port}
         print("Inserted Client ", ClientID , " to Connected_Clients global Dictionary")
+        connection.send(str.encode("Received Thanks user " + str(ClientID)))
         
     except Exception as exx:
         print("Error -> ", str(exx))
@@ -52,7 +57,11 @@ def threaded_client(connection , IPaddr,  port):
 
     try:
         while True:
-            data = connection.recv(2048)
+            #connection.sendall(str.encode("Requesting Screenshot"))
+            #data = connection.recv(2048)
+            #print("client says -> " + data.decode('utf-8'))
+            time.sleep(1)
+            """ data = connection.recv(2048)
             reply = 'Server Says: ' + data.decode('utf-8')
             print("client says -> " + data.decode('utf-8'))
             PrintDateTime()
@@ -60,7 +69,7 @@ def threaded_client(connection , IPaddr,  port):
                 pass
             if(data.decode('utf-8') == "close"):
                 connection.close()
-            connection.sendall(str.encode(reply))
+            connection.sendall(str.encode(reply)) """
         connection.close()
     except Exception as ex: #?Desktop client closed
         print("Error -> ", str(ex))
@@ -76,6 +85,7 @@ def accept_connections():
     while True:
         Client, address = ServerSocket.accept()
         print('Connected to: ' + address[0] + ':' + str(address[1]))
+        
         start_new_thread(threaded_client, (Client, str(address[0]), str(address[1]),))
         global ThreadCount
         ThreadCount += 1
@@ -87,10 +97,30 @@ def main():
     print("python main function")
     t = start_new_thread(accept_connections, ())
     print("accept_connections() Thread created")
-    while(abort == False):
-        time.sleep(1)
-        pass
+    
+    app.run(port=2022)
+
+    
+@app.route('/')
+def index():
+    return "hi"
+
+@app.route('/getdata/<clientid>', methods= ['GET'])
+def hello_name(clientid):
+    global Connected_Clients
+    Current_Client = Connected_Clients[int(clientid)]
+    sock = Current_Client["IP"] + Current_Client["Port"]
+    
+    Current_Client["connection_object"].send(str.encode("Requesting Screenshot"))
+    data = Current_Client["connection_object"].recv(20000000)
+    
+    #print("client says -> " + data.decode('utf-8'))
+    
+    #return "In @app.route POST ('/getdata/<clientid>' -> ) " + clientid + " " + sock
+    base64data = json.loads(data.decode('utf-8'))
+    return "<div> <img src=\"data:image/png;base64, "+ base64data["Data"] +" \"  /> </div>"
 
 
 if __name__ == '__main__':
+    
     main()
