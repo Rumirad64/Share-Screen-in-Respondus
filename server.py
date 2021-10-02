@@ -1,17 +1,19 @@
+import re
 import socket
 import os
 from _thread import *
 import json
 import datetime
 import time
+import traceback
 
-from flask import Flask, redirect, url_for, request
+from flask import Flask, redirect, url_for, request,Response,Request,send_file
 app = Flask(__name__)
 
 
 ServerSocket = socket.socket()
 HOST = '0.0.0.0'
-PORT = 2021
+PORT = 20000
 ThreadCount = 0
 abort = False
 
@@ -98,28 +100,63 @@ def main():
     t = start_new_thread(accept_connections, ())
     print("accept_connections() Thread created")
     
-    app.run(port=2022)
+    app.run(port=10000, host="0.0.0.0")
 
     
 @app.route('/')
 def index():
-    return "hi"
+    return redirect("/getdata/10000")
+    
+@app.after_request
+def add_header(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Cache-Control'] = 'no-store, max-age=0'
+    return response
 
 @app.route('/getdata/<clientid>', methods= ['GET'])
-def hello_name(clientid):
-    global Connected_Clients
-    Current_Client = Connected_Clients[int(clientid)]
-    sock = Current_Client["IP"] + Current_Client["Port"]
+def get_data(clientid):
+    try:
+        global Connected_Clients
+        Current_Client = Connected_Clients[int(clientid)]
+        sock = Current_Client["IP"] + Current_Client["Port"]
     
-    Current_Client["connection_object"].send(str.encode("Requesting Screenshot"))
-    data = Current_Client["connection_object"].recv(20000000)
+        Current_Client["connection_object"].send(str.encode("Requesting Screenshot"))
+        
+        """ data = Current_Client["connection_object"].recv(200000000)
     
-    #print("client says -> " + data.decode('utf-8'))
+        #print("client says -> " + data.decode('utf-8'))
     
-    #return "In @app.route POST ('/getdata/<clientid>' -> ) " + clientid + " " + sock
-    base64data = json.loads(data.decode('utf-8'))
-    return "<div> <img src=\"data:image/png;base64, "+ base64data["Data"] +" \"  /> </div>"
+        #return "In @app.route POST ('/getdata/<clientid>' -> ) " + clientid + " " + sock
+        base64data = json.loads(data.decode('utf-8'))
+        return "<div> <img src=\"data:image/png;base64, "+ base64data["Data"] +" \"  /> </div>" """
+        
+        filetodown = open(str(clientid) + ".png", "wb")
+        
+        data = Current_Client["connection_object"].recv(2000000)
+            
+        filetodown.write(data)
+        filetodown.close()
+        Current_Client["connection_object"].send(b"Thank you for connecting.")
+        
+        return "<div> <img src=\"/"+ str(clientid) +".png  \"  /> </div>"
 
+    except Exception as ex:
+        print("Error -> ", str(ex))
+        global ThreadCount
+        ThreadCount = ThreadCount - 1
+        print('Thread Count: ' + str(ThreadCount))
+        #Connected_Clients.pop(ClientID)
+        #print("Removed Client ", ClientID , " from Connected_Clients global Dictionary")
+        e = traceback.format_exc()
+        return "<pre> Exception No user in Connected_Clients global Dictionary " + str(ex)  +  str(e)  +"   </pre>"
+
+@app.route('/<int:filename>.png')
+def getpng(filename):
+    try:
+        return send_file(str(filename) + ".png", mimetype='image/png')
+    except Exception as ex:
+        e = traceback.format_exc()
+        return "<pre> Error -> " + str(e) + "</pre>"
 
 if __name__ == '__main__':
     

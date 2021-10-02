@@ -1,12 +1,13 @@
 import socket
 import random
 import json
+from time import time
 import pyautogui
 import base64
 
 ClientSocket = socket.socket()
 host = '127.0.0.1'
-port = 2021
+port = 20000
 hostname = socket.gethostname()
 
 print('Waiting for connection')
@@ -34,6 +35,22 @@ while True:
     Response = ClientSocket.recv(1024)
     #ClientSocket.send(str.encode(hostname + " -> " + Input ))
     screenshot = pyautogui.screenshot("Capture.PNG")
+    
+    print(Response.decode('utf-8'))
+    filetosend = open("Capture.PNG", "rb")
+    data = filetosend.read()
+    
+    print("Sending... len -> " , len(data))
+    ClientSocket.sendall(data)
+    
+    filetosend.close()
+    
+    
+    print("Done Sending.")
+    print(ClientSocket.recv(1024))
+    
+    
+    """ 
     image = open("Capture.PNG", 'rb')
     image_read = image.read()
     image_64_encode = base64.encodebytes(image_read)
@@ -42,7 +59,7 @@ while True:
     tosend["Data"] = str(image_64_encode)
     #tosend["Data"] = "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
     print(Response.decode('utf-8'))
-    ClientSocket.send(str.encode(json.dumps(tosend)))
+    ClientSocket.send(str.encode(json.dumps(tosend))) """
 
 
 ClientSocket.close()
