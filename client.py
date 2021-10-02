@@ -10,6 +10,10 @@ host = '127.0.0.1'
 port = 20000
 hostname = socket.gethostname()
 
+with open('serverip.txt') as f:
+    lines = f.readline()
+    host = lines
+
 print('Waiting for connection')
 try:
     ClientSocket.connect((host, port))
@@ -21,6 +25,10 @@ clientID = str(clientID)
 print("Client ID -> ", clientID)
 ClientSocket.send(str.encode(clientID))
 ack = Response = ClientSocket.recv(1024)
+
+with open('clientID.txt', 'w') as f:
+    f.write(str(clientID))
+
 
 tosend = {
     "ClientID": "John",
