@@ -487,3 +487,10 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/settings.json
+*.png
+*.exe
+*.rar
+*.ico
