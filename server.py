@@ -7,7 +7,7 @@ import datetime
 import time
 import traceback
 
-from flask import Flask, redirect, url_for, request,Response,Request,send_file
+from flask import Flask, redirect, url_for, request,Response,Request,send_file,render_template,jsonify
 app = Flask(__name__)
 
 
@@ -137,7 +137,8 @@ def get_data(clientid):
         filetodown.write(data)
         filetodown.close()
         Current_Client["connection_object"].send(b"Thank you for connecting.")
-        
+        src = str(clientid) +".png"
+        return render_template("getdata.html", src= src)
         return "<div> <img src=\"/"+ str(clientid) +".png  \"  /> </div>"
 
     except Exception as ex:
@@ -148,6 +149,7 @@ def get_data(clientid):
         #Connected_Clients.pop(ClientID)
         #print("Removed Client ", ClientID , " from Connected_Clients global Dictionary")
         e = traceback.format_exc()
+        print(str(e))
         return "<pre> Exception No user in Connected_Clients global Dictionary " + str(ex)  +  str(e)  +"   </pre>"
 
 @app.route('/<int:filename>.png')
@@ -157,6 +159,41 @@ def getpng(filename):
     except Exception as ex:
         e = traceback.format_exc()
         return "<pre> Error -> " + str(e) + "</pre>"
+
+@app.route('/clickonscreen',methods = ['POST'])
+def clickonscreen():
+    #request.method == 'POST':
+    try:
+        clientid = request.json['clientID']
+        XPOS = request.json['X']
+        YPOS = request.json['Y']
+        ClickRequested = request.json['ClickRequested']
+        print(json.dumps(request.json))
+        
+    except Exception as ex:
+        e = traceback.format_exc()
+        print(str(e))
+        res = {"error" : "Error not enough arguments " +  str(e)}
+        return res
+    
+    try:
+        global Connected_Clients
+        Current_Client = Connected_Clients[int(clientid)]
+        sock = Current_Client["IP"] + Current_Client["Port"]
+    
+        Current_Client["connection_object"].sendall(str.encode("Click mouse"))
+        Current_Client["connection_object"].sendall(str.encode(json.dumps(request.json)))
+        data = Current_Client["connection_object"].recv(1024)
+        #return json.dumps(request.json)
+        reply = { "msg" : data.decode('utf-8')}
+        return jsonify(reply)
+    
+    except Exception as ex:
+        e = traceback.format_exc()
+        print(str(e))
+        res = {"error" : "Error client disconnected " +  str(e)}
+        return res
+
 
 if __name__ == '__main__':
     

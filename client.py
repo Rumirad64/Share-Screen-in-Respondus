@@ -39,24 +39,35 @@ tosend = {
 
 while True:
     #Input = input('Say Something: ')
-
-    Response = ClientSocket.recv(1024)
     #ClientSocket.send(str.encode(hostname + " -> " + Input ))
-    screenshot = pyautogui.screenshot("Capture.PNG")
     
-    print(Response.decode('utf-8'))
-    filetosend = open("Capture.PNG", "rb")
-    data = filetosend.read()
-    
-    print("Sending... len -> " , len(data))
-    ClientSocket.sendall(data)
-    
-    filetosend.close()
+    Response = ClientSocket.recv(1024)
+    res = Response.decode('utf-8')
     
     
-    print("Done Sending.")
-    print(ClientSocket.recv(1024))
+    if(res == "Requesting Screenshot"):
+        print(res)
+        screenshot = pyautogui.screenshot("Capture.PNG")
+        filetosend = open("Capture.PNG", "rb")
+        data = filetosend.read()
     
+        print("Sending... len -> " , len(data))
+        ClientSocket.sendall(data)
+
+        filetosend.close()
+    
+        print("Done Sending.")
+        print(ClientSocket.recv(1024))
+    elif(res == "Click mouse"):
+        print(res)
+        Response = ClientSocket.recv(1024)
+        jsondata = Response.decode('utf-8')
+        print(jsondata)
+        jsondata = json.loads(jsondata)
+        pyautogui.leftClick(x = jsondata["X"] , y = jsondata["Y"])
+        ClientSocket.sendall(str.encode("Clicked"))
+        
+        
     
     """ 
     image = open("Capture.PNG", 'rb')
