@@ -185,7 +185,9 @@ def clickonscreen():
         Current_Client["connection_object"].sendall(str.encode(json.dumps(request.json)))
         data = Current_Client["connection_object"].recv(1024)
         #return json.dumps(request.json)
-        reply = { "msg" : data.decode('utf-8')}
+        #* reply = { "msg" : data.decode('utf-8')}
+        reply = { "msg" : repr(data)}
+        #! connection.send(str.encode("Received Thanks user " + str(ClientID)))
         return jsonify(reply)
     
     except Exception as ex:

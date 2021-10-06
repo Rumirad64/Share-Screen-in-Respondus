@@ -62,7 +62,7 @@ while True:
         print(res)
         Response = ClientSocket.recv(1024)
         jsondata = Response.decode('utf-8')
-        print(jsondata)
+        print("jsondata -> " + jsondata)
         jsondata = json.loads(jsondata)
         pyautogui.leftClick(x = jsondata["X"] , y = jsondata["Y"])
         ClientSocket.sendall(str.encode("Clicked"))
