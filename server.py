@@ -87,7 +87,7 @@ def accept_connections():
     while True:
         Client, address = ServerSocket.accept()
         print('Connected to: ' + address[0] + ':' + str(address[1]))
-        
+        #Client.settimeout(30.0) #! NOT Tested
         start_new_thread(threaded_client, (Client, str(address[0]), str(address[1]),))
         global ThreadCount
         ThreadCount += 1
