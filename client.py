@@ -8,7 +8,7 @@ import base64
 
 host = '127.0.0.1'
 port = 20000
-TIMEOUT_SECONDS = 20.0
+TIMEOUT_SECONDS = 120.0
 #hostname = socket.gethostname()
 
 with open('serverip.txt') as f:
