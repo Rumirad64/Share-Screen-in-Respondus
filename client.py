@@ -7,7 +7,7 @@ import base64
 
 
 host = '127.0.0.1'
-port = 20000
+port = 50000
 TIMEOUT_SECONDS = 120.0
 #hostname = socket.gethostname()
 
@@ -58,7 +58,7 @@ while True:
                 jsondata = Response.decode('utf-8')
                 print("jsondata -> " + jsondata)
                 jsondata = json.loads(jsondata)
-                pyautogui.leftClick(x = jsondata["X"] , y = jsondata["Y"])
+                pyautogui.click(x = jsondata["X"] , y = jsondata["Y"])
                 ClientSocket.sendall(str.encode("Clicked"))
     except Exception as e:
         print(str(e))

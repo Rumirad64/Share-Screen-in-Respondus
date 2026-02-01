@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 ServerSocket = socket.socket()
 HOST = '0.0.0.0'
-PORT = 20000
+PORT = 50000
 ThreadCount = 0
 abort = False
 
@@ -100,7 +100,7 @@ def main():
     t = start_new_thread(accept_connections, ())
     print("accept_connections() Thread created")
     
-    app.run(port=10000, host="0.0.0.0")
+    app.run(port=65000, host="0.0.0.0")
 
     
 @app.route('/')

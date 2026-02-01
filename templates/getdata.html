@@ -15,31 +15,28 @@
     <h1>Hello {{ src }}!</h1>
     <div> <img src={{"/" + src}} /> </div>
     <script>
-        //const axios = require('axios').default;
-        ////
-        /*
-        let clientID = window.location.pathname.split('/')[2];
-        $(document).ready(function () {
-            $("img").on("click", function (event) {
-                let x = event.pageX - this.offsetLeft;
-                let y = event.pageY - this.offsetTop;
-                console.log("X Coordinate: " + x + " Y Coordinate: " + y);
+        // let clientID = window.location.pathname.split('/')[2];
+        // $(document).ready(function () {
+        //     $("img").on("click", function (event) {
+        //         let x = event.offsetX;
+        //         let y = event.offsetY;
+        //         console.log("X Coordinate: " + x + " Y Coordinate: " + y);
 
-                axios.post('/clickonscreen', {
-                    clientID: clientID,
-                    X: x,
-                    Y: y,
-                    ClickRequested: true
-                })
-                    .then(function (response) {
-                        console.log(response.data);
-                        //location.reload();
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-            });
-        }); */
+        //         axios.post('/clickonscreen', {
+        //             clientID: clientID,
+        //             X: x,
+        //             Y: y,
+        //             ClickRequested: true
+        //         })
+        //             .then(function (response) {
+        //                 console.log(response.data);
+        //                 //location.reload();
+        //             })
+        //             .catch(function (error) {
+        //                 console.log(error);
+        //             });
+        //     });
+        // });
     </script>
 </body>
 
