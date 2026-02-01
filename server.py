@@ -130,12 +130,31 @@ def get_data(clientid):
         base64data = json.loads(data.decode('utf-8'))
         return "<div> <img src=\"data:image/png;base64, "+ base64data["Data"] +" \"  /> </div>" """
         
-        filetodown = open(str(clientid) + ".png", "wb")
+        # Receive 10-byte size header
+        size_header = b''
+        while len(size_header) < 10:
+            chunk = Current_Client["connection_object"].recv(10 - len(size_header))
+            if not chunk:
+                raise Exception("Connection closed while receiving size header")
+            size_header += chunk
         
-        data = Current_Client["connection_object"].recv(2000000)
-            
-        filetodown.write(data)
+        data_size = int(size_header.decode('utf-8'))
+        print(f"Expected data size: {data_size} bytes")
+        
+        # Receive data in loop until all bytes received
+        filetodown = open(str(clientid) + ".png", "wb")
+        received_size = 0
+        
+        while received_size < data_size:
+            chunk_size = min(8192, data_size - received_size)  # Receive in 8KB chunks
+            data = Current_Client["connection_object"].recv(chunk_size)
+            if not data:
+                raise Exception(f"Connection closed. Received {received_size}/{data_size} bytes")
+            filetodown.write(data)
+            received_size += len(data)
+        
         filetodown.close()
+        print(f"Successfully received {received_size} bytes")
         Current_Client["connection_object"].send(b"Thank you for connecting.")
         src = str(clientid) +".png"
         return render_template("getdata.html", src= src)

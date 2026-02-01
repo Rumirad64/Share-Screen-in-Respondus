@@ -46,7 +46,14 @@ while True:
                 screenshot = pyautogui.screenshot("Capture.PNG")
                 filetosend = open("Capture.PNG", "rb")
                 data = filetosend.read()
-                print("Sending... len -> " , len(data))
+                data_size = len(data)
+                print("Sending... len -> " , data_size)
+                
+                # Send size as 10-byte header (zero-padded)
+                size_header = str(data_size).zfill(10).encode('utf-8')
+                ClientSocket.sendall(size_header)
+                
+                # Send actual image data
                 ClientSocket.sendall(data)
                 filetosend.close()
                 print("Done Sending.")
